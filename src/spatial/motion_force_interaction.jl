@@ -170,7 +170,7 @@ Transform the `SpatialInertia` to a different frame.
     mcnew = Rmc + mp
     X = Rmc * transpose(p)
     Y = X + transpose(X) + mp * transpose(p)
-    Jnew = R * J * transpose(R) - Y + tr(Y) * I
+    Jnew = R * J * transpose(R) - Y + tr(Y) * I(3)
 
     SpatialInertia(t.to, Jnew, mcnew, m)
 end

@@ -4,7 +4,9 @@ function flip_direction(jt::JointType{T}) where {T}
     error("Flipping direction is not supported for $(typeof(jt))")
 end
 
-@propagate_inbounds zero_configuration!(q::AbstractVector, ::JointType) = (q .= 0; nothing)
+@propagate_inbounds function zero_configuration!(q::AbstractVector{T}, ::JointType) where {T}
+    return (q .= zero(T); nothing)
+end
 
 @propagate_inbounds function local_coordinates!(ϕ::AbstractVector, ϕ̇::AbstractVector,
         jt::JointType, q0::AbstractVector, q::AbstractVector, v::AbstractVector)

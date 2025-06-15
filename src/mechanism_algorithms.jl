@@ -722,25 +722,39 @@ function contact_dynamics!(result::DynamicsResult{T, M}, state::MechanismState{X
     end
 end
 
+function dynamics_solve!(_v̇::AbstractVector, λ::AbstractVector,
+    G::AbstractMatrix, _c::AbstractVector, k::AbstractVector, nv::Int, nl::Int, τ::AbstractVector
+)
+    c = parent(_c)
+    r = [τ - c; -k]
+    v̇ = parent(_v̇)
+    v̇λ = G \ r
+    v̇ .= view(v̇λ, 1 : nv)
+    λ .= view(v̇λ, nv + 1 : nv + nl)
+    nothing
+end
+
 function dynamics_solve!(result::DynamicsResult, τ::AbstractVector)
     # version for general scalar types
     # TODO: make more efficient
     M = result.massmatrix
-    c = parent(result.dynamicsbias)
-    v̇ = parent(result.v̇)
+    # println("M: ", M.data)
+    # c = parent(result.dynamicsbias)
+    # v̇ = parent(result.v̇)
 
     K = result.constraintjacobian
-    k = result.constraintbias
-    λ = result.λ
+    # k = result.constraintbias
+    # λ = result.λ
 
     nv = size(M, 1)
     nl = size(K, 1)
     G = [Matrix(M) K'; # TODO: Matrix because of https://github.com/JuliaLang/julia/issues/21332
          K zeros(nl, nl)]
-    r = [τ - c; -k]
-    v̇λ = G \ r
-    v̇ .= view(v̇λ, 1 : nv)
-    λ .= view(v̇λ, nv + 1 : nv + nl)
+    # r = [τ - c; -k]
+    # v̇λ = G \ r
+    # v̇ .= view(v̇λ, 1 : nv)
+    # λ .= view(v̇λ, nv + 1 : nv + nl)
+    dynamics_solve!(result.v̇, result.λ, G, result.dynamicsbias, result.constraintbias, nv, nl, τ)
     nothing
 end
 
